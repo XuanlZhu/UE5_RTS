@@ -24,35 +24,36 @@ ArtsPlayerController::ArtsPlayerController()
 
 void ArtsPlayerController::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
 }
 
 void ArtsPlayerController::SetupInputComponent()
 {
-	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
-	// Add Input Mapping Context
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	// 添加输入映射上下文
+	// if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	// {
+	// 	Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	// }
+	
+	GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()->AddMappingContext(DefaultMappingContext, 0);
+	
+	
+	// 设置动作绑定
+	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	}
-
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
-	{
-		// Setup mouse input events
+		// 设置鼠标输入事件
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ArtsPlayerController::OnInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ArtsPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnSetDestinationReleased);
 
 		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ArtsPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnTouchTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ArtsPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnTouchReleased);
+		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ArtsPlayerController::OnInputStarted);
+		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnTouchTriggered);
+		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ArtsPlayerController::OnTouchReleased);
+		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnTouchReleased);
 	}
 	else
 	{
@@ -62,16 +63,16 @@ void ArtsPlayerController::SetupInputComponent()
 
 void ArtsPlayerController::OnInputStarted()
 {
-	StopMovement();
+	StopMovement();//停止
 }
 
-// Triggered every frame when the input is held down
+// 当输入被按住时，每一帧都会触发
 void ArtsPlayerController::OnSetDestinationTriggered()
 {
-	// We flag that the input is being pressed
+	// 我们标记输入正处于被按下的状态。
 	FollowTime += GetWorld()->GetDeltaSeconds();
 	
-	// We look for the location in the world where the player has pressed the input
+	// 我们查找玩家在世界空间中按下输入的位置。
 	FHitResult Hit;
 	bool bHitSuccessful = false;
 	if (bIsTouch)
@@ -89,7 +90,7 @@ void ArtsPlayerController::OnSetDestinationTriggered()
 		CachedDestination = Hit.Location;
 	}
 	
-	// Move towards mouse pointer or touch
+	// 向鼠标指针或触摸点移动
 	APawn* ControlledPawn = GetPawn();
 	if (ControlledPawn != nullptr)
 	{
@@ -97,19 +98,26 @@ void ArtsPlayerController::OnSetDestinationTriggered()
 		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
 	}
 }
-
+//当设置目标点释放
 void ArtsPlayerController::OnSetDestinationReleased()
 {
-	// If it was a short press
+	// 如果是短按
 	if (FollowTime <= ShortPressThreshold)
 	{
-		// We move there and spawn some particles
+		// 我们移动到那里，并生成一些粒子
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 	}
 
 	FollowTime = 0.f;
 }
+
+
+
+
+
+
+
 
 // Triggered every frame when the input is held down
 void ArtsPlayerController::OnTouchTriggered()

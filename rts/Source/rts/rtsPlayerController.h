@@ -22,34 +22,35 @@ class ArtsPlayerController : public APlayerController
 public:
 	ArtsPlayerController();
 
-	/** Time Threshold to know if it was a short press */
+	/** 时间阈值用于判断是否为短按 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
 
-	/** FX Class that we will spawn when clicking */
+	/** 点击时将生成的特效（FX）类 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UNiagaraSystem* FXCursor;
-
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
+	UNiagaraSystem* FXCursor;//粒子特效
 	
-	/** Jump Input Action */
+	/** 映射上下文 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationClickAction;
+	UInputMappingContext* DefaultMappingContext;//映射表
+	
+	/** 设置目的地点击动作 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SetDestinationClickAction;//目的地点击动作
 
-	/** Jump Input Action */
+	/** 跳跃输入动作 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationTouchAction;
+	UInputAction* SetDestinationTouchAction;//设置目的地触屏动作
 
 protected:
-	/** True if the controlled character should navigate to the mouse cursor. */
+	/** 如果受控角色应导航至鼠标光标位置，则为真。 */
 	uint32 bMoveToMouseCursor : 1;
-
+	
+	//设置输入绑定
 	virtual void SetupInputComponent() override;
 	
 	// To add mapping context
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 
 	/** Input handlers for SetDestination action. */
 	void OnInputStarted();
@@ -59,10 +60,10 @@ protected:
 	void OnTouchReleased();
 
 private:
-	FVector CachedDestination;
+	FVector CachedDestination;//缓存目标
 
-	bool bIsTouch; // Is it a touch device
-	float FollowTime; // For how long it has been pressed
+	bool bIsTouch; // 是否是触摸设备
+	float FollowTime; //按压时间
 };
 
 
