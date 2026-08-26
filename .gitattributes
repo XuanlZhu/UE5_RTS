@@ -1,0 +1,9 @@
+# 强制所有文本文件使用 LF
+*.txt text eol=lf
+
+# 对代码文件强制使用 LF
+*.js text eol=lf
+*.py text eol=lf
+
+# Windows 批处理文件使用 CRLF
+*.bat text eol=crlf

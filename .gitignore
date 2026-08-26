@@ -1,0 +1,77 @@
+# Unreal Engine generated folders
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Build output
+*.dll
+*.exe
+*.lib
+*.obj
+*.pdb
+*.exp
+
+# Unreal project files
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Visual Studio
+.vs/
+.vscode/
+.idea/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Unreal generated files
+*.user
+*.userprefs
+*.csproj
+*.vcxproj
+*.vcxproj.filters
+
+# Build tools
+Build/
+Makefile
+
+# Logs
+*.log
+
+# Crash reports
+Saved/Crashes/
+Saved/Logs/
+
+# Autosaves
+Saved/Autosaves/
+
+# Backup files
+*.bak
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Unreal cache
+DerivedDataCache/
+*.ushaderbytecode
+*.ubulk
+*.uptnl
+*.udk
+
+# Plugins build output
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# Ignore local config
+Config/DefaultEditorPerProjectUserSettings.ini
+Config/DefaultEditor.ini
+
+# Keep empty folders if needed
+!.gitkeep
