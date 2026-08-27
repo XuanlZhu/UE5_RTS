@@ -13,34 +13,34 @@
 
 ArtsCharacter::ArtsCharacter()
 {
-	// Set size for player capsule
+	// 设置玩家胶囊体的大小
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	// Don't rotate character to camera direction
+	// 不要将角色旋转至面向摄像机的方向
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+	// 配置角色移动
+	GetCharacterMovement()->bOrientRotationToMovement = true; // 将角色转向移动方向
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+	GetCharacterMovement()->bConstrainToPlane = true;//约束到地面
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;//当角色开始移动时，把角色的位置自动调整到约束的移动平面上。
 
-	// Create a camera boom...
+	// 创建一个摄像机摇臂
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 800.f;
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
-	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
+	CameraBoom->SetupAttachment(RootComponent);//挂在根节点
+	CameraBoom->SetUsingAbsoluteRotation(true); // 不希望手臂随角色转动
+	CameraBoom->TargetArmLength = 10000.f;//程度
+	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));//设置相对旋转
+	CameraBoom->bDoCollisionTest = false; // 不想让摄像机在与关卡发生碰撞时向内拉近。
 
-	// Create a camera...
+	// 创建摄像机
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	TopDownCameraComponent->bUsePawnControlRotation = false; // 相机相对于机械臂不旋转
 
-	// Activate ticking in order to update the cursor every frame.
+	// 启用 Tick（逐帧更新）以在每一帧更新光标
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }

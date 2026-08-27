@@ -14,20 +14,20 @@ class ArtsCharacter : public ACharacter
 public:
 	ArtsCharacter();
 
-	// Called every frame.
+	// 每一帧都会被调用。
 	virtual void Tick(float DeltaSeconds) override;
 
-	/** Returns TopDownCameraComponent subobject **/
+	/** 返回 TopDownCameraComponent 子对象。 **/
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
-	/** Returns CameraBoom subobject **/
+	/** 返回 CameraBoom 子对象 **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 private:
-	/** Top down camera */
+	/** 俯视视角摄像机 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
 
-	/** Camera boom positioning the camera above the character */
+	/** 将摄像机置于角色上方的摄像机吊臂 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 };

@@ -7,17 +7,17 @@
 
 ArtsGameMode::ArtsGameMode()
 {
-	// use our custom PlayerController class
+	// 使用我们自定义的 PlayerController 类
 	PlayerControllerClass = ArtsPlayerController::StaticClass();
 
-	// set default pawn class to our Blueprinted character
+	// 将默认 Pawn 类设置为我们的蓝图角色
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDown/Blueprints/BP_TopDownCharacter"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	// set default controller to our Blueprinted controller
+	// 将默认控制器设置为我们基于蓝图（Blueprint）创建的控制器。
 	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/TopDown/Blueprints/BP_TopDownPlayerController"));
 	if(PlayerControllerBPClass.Class != NULL)
 	{
