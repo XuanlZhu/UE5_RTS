@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "rtsPlayerController.generated.h"
 
+class UAbilitySystemComponent;
+class UHUDWidget;
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
 class UInputMappingContext;
@@ -64,6 +66,15 @@ private:
 
 	bool bIsTouch; // 是否是触摸设备
 	float FollowTime; //按压时间
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HUDWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* HudWidget;
+	
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> ASC;
 };
 
 

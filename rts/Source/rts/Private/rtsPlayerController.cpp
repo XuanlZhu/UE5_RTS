@@ -10,7 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/LocalPlayer.h"
+#include "MyAttributeSet.h"
+#include "HUDWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -25,6 +28,19 @@ ArtsPlayerController::ArtsPlayerController()
 void ArtsPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	if (!IsLocalController())return;
+	
+	ASC = GetPawn<AUnitCharacter>()->GetAbilitySystemComponent();
+	
+	HudWidget = CreateWidget<UUserWidget>(
+		this,
+		HUDWidgetClass
+	);
+	if (HudWidget)HudWidget->AddToViewport();
+	//委托更新
+	// ASC->GetGameplayAttributeValueChangeDelegate( UMyAttributeSet::GetHealthAttribute() ).AddUObject(HudWidget,&UHUDWidget::OnHealthChanged);
+	
 }
 
 void ArtsPlayerController::SetupInputComponent()
@@ -90,7 +106,7 @@ void ArtsPlayerController::OnSetDestinationTriggered()
 		CachedDestination = Hit.Location;
 	}
 	
-	// 向鼠标指针或触摸点移动
+	// 向鼠标指针或触摸点 径直 移动
 	APawn* ControlledPawn = GetPawn();
 	if (ControlledPawn != nullptr)
 	{

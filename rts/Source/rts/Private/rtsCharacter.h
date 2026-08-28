@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "unit/UnitCharacter.h"
 #include "rtsCharacter.generated.h"
 
 UCLASS(Blueprintable)
-class ArtsCharacter : public ACharacter
+class ArtsCharacter : public AUnitCharacter
 {
 	GENERATED_BODY()
 
