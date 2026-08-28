@@ -47,12 +47,8 @@ void ArtsPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	// 添加输入映射上下文
-	// if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	// {
-	// 	Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	// }
-	
+
+	// 添加输入映射上下文,也就是设置IMC_
 	GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>()->AddMappingContext(DefaultMappingContext, 0);
 	
 	
@@ -64,12 +60,12 @@ void ArtsPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ArtsPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnSetDestinationReleased);
-
-		// Setup touch input events
-		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ArtsPlayerController::OnInputStarted);
-		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnTouchTriggered);
-		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ArtsPlayerController::OnTouchReleased);
-		// EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnTouchReleased);
+		
+		// 设置按下Q
+		EnhancedInputComponent->BindActionInstanceLambda(PressQ, ETriggerEvent::Started, [this](const FInputActionInstance& Instance){
+			UE_LOG(LogTemp, Log, TEXT("Press Q"));
+		});
+		// UE_LOG(LogTemp, Log, TEXT("Press Q"));
 	}
 	else
 	{

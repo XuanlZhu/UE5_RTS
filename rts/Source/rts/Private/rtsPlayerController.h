@@ -43,6 +43,10 @@ public:
 	/** 跳跃输入动作 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationTouchAction;//设置目的地触屏动作
+	
+	//Q动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* PressQ;//目的地点击动作
 
 protected:
 	/** 如果受控角色应导航至鼠标光标位置，则为真。 */
