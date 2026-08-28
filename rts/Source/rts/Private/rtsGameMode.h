@@ -13,6 +13,7 @@ class ArtsGameMode : public AGameModeBase
 
 public:
 	ArtsGameMode();
+	virtual void BeginPlay() override;
 };
 
 

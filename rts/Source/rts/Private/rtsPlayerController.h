@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "rtsPlayerController.generated.h"
 
+class UWidget;
 class UAbilitySystemComponent;
 class UHUDWidget;
 /** Forward declaration to improve compiling times */
@@ -47,6 +48,19 @@ public:
 	//Q动作
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* PressQ;//目的地点击动作
+	//S动作
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* PressS;//目的地点击动作
+	//左键框选
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SelectBox;//框选
+	
+	UPROPERTY()
+	UWidget* SelectBoxWidget;
+
+	FVector2D SelectBoxStart;
+	FVector2D SelectBoxCurrent;
+	bool bSelecting = false;
 
 protected:
 	/** 如果受控角色应导航至鼠标光标位置，则为真。 */
@@ -62,8 +76,10 @@ protected:
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
+	void OnSelectBoxStart();
+	void OnSelectBoxEnd();
+	void OnSelectBoxTrigger();
+
 
 private:
 	FVector CachedDestination;//缓存目标

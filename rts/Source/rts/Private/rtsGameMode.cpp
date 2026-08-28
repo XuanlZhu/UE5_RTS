@@ -24,3 +24,20 @@ ArtsGameMode::ArtsGameMode()
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}
 }
+
+void ArtsGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	FActorSpawnParameters SpawnParams;
+
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
+	GetWorld()->SpawnActor<AUnitCharacter>(
+		AUnitCharacter::StaticClass(),
+		FVector(1000, 1800, 0),
+		FRotator::ZeroRotator,
+		SpawnParams
+	);
+	UE_LOG(LogTemp, Log, TEXT("生成一个敌人"));
+}

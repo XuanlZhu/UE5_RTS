@@ -14,6 +14,10 @@
 #include "Engine/LocalPlayer.h"
 #include "MyAttributeSet.h"
 #include "HUDWidget.h"
+#include "Blueprint/SlateBlueprintLibrary.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/Border.h"
+#include "Components/CanvasPanelSlot.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -40,6 +44,8 @@ void ArtsPlayerController::BeginPlay()
 	if (HudWidget)HudWidget->AddToViewport();
 	//委托更新
 	// ASC->GetGameplayAttributeValueChangeDelegate( UMyAttributeSet::GetHealthAttribute() ).AddUObject(HudWidget,&UHUDWidget::OnHealthChanged);
+	SelectBoxWidget = HudWidget->GetWidgetFromName(TEXT("SelectionBox"));
+	
 	
 }
 
@@ -64,14 +70,110 @@ void ArtsPlayerController::SetupInputComponent()
 		// 设置按下Q
 		EnhancedInputComponent->BindActionInstanceLambda(PressQ, ETriggerEvent::Started, [this](const FInputActionInstance& Instance){
 			UE_LOG(LogTemp, Log, TEXT("Press Q"));
+
+			ASC->ApplyModToAttribute(
+				UMyAttributeSet::GetHealthAttribute(),
+				EGameplayModOp::Additive,
+				-10.0f
+			);
+		});
+		//设置 按下S
+		EnhancedInputComponent->BindActionInstanceLambda(PressS, ETriggerEvent::Started, [this](const FInputActionInstance& Instance){
+			StopMovement();
 		});
 		// UE_LOG(LogTemp, Log, TEXT("Press Q"));
-	}
-	else
-	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		//输入左键
+		EnhancedInputComponent->BindAction(SelectBox, ETriggerEvent::Started, this, &ArtsPlayerController::OnSelectBoxStart);
+		EnhancedInputComponent->BindAction(SelectBox, ETriggerEvent::Completed, this, &ArtsPlayerController::OnSelectBoxEnd);
+		EnhancedInputComponent->BindAction(SelectBox, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnSelectBoxTrigger);
 	}
 }
+void ArtsPlayerController::OnSelectBoxTrigger()
+{
+	// UE_LOG(LogTemp, Log, TEXT("框选触发"));
+	// GetMousePosition(SelectBoxCurrent.X,SelectBoxCurrent.Y);
+	// Cast<UCanvasPanelSlot>(SelectBoxWidget->Slot)->SetSize(FVector2D(SelectBoxCurrent.X-SelectBoxStart.X, 100));
+	
+	GetMousePosition(SelectBoxCurrent.X,SelectBoxCurrent.Y);
+
+	// 获取 HUD 的 Geometry
+	FGeometry Geometry = HudWidget->GetCachedGeometry();
+
+	// 屏幕坐标 -> HUD 局部坐标
+	FVector2D StartLocal;
+	FVector2D CurrentLocal;
+
+	USlateBlueprintLibrary::ScreenToWidgetLocal(
+		this,
+		Geometry,
+		SelectBoxStart,
+		StartLocal
+	);
+
+	USlateBlueprintLibrary::ScreenToWidgetLocal(
+		this,
+		Geometry,
+		SelectBoxCurrent,
+		CurrentLocal
+	);
+
+	// 计算矩形左上角
+	FVector2D Position(
+		FMath::Min(StartLocal.X, CurrentLocal.X),
+		FMath::Min(StartLocal.Y, CurrentLocal.Y)
+	);
+
+	// 计算矩形大小
+	FVector2D Size(
+		FMath::Abs(CurrentLocal.X - StartLocal.X),
+		FMath::Abs(CurrentLocal.Y - StartLocal.Y)
+	);
+
+	// 设置位置和大小
+	UCanvasPanelSlot* CanvasSlot = Cast<UCanvasPanelSlot>(SelectBoxWidget->Slot);
+	CanvasSlot->SetPosition(Position);
+	CanvasSlot->SetSize(Size);
+
+}
+void ArtsPlayerController::OnSelectBoxStart()
+{
+	UE_LOG(LogTemp, Log, TEXT("框选开始"));
+	
+	bSelecting = true;
+	// 记录鼠标按下的位置
+	GetMousePosition(SelectBoxStart.X,SelectBoxStart.Y);
+	
+	FVector2D LocalPosition;
+
+	USlateBlueprintLibrary::ScreenToWidgetLocal(
+		this,
+		HudWidget->GetCachedGeometry(),
+		SelectBoxStart,
+		LocalPosition
+	);
+	
+	UCanvasPanelSlot* Slot = Cast<UCanvasPanelSlot>(SelectBoxWidget->Slot);
+	Slot->SetPosition(LocalPosition);
+	Slot->SetSize(FVector2D(0, 100));
+	
+	
+	
+	SelectBoxWidget->SetVisibility(
+		ESlateVisibility::Visible
+	);
+}
+
+void ArtsPlayerController::OnSelectBoxEnd()
+{
+	UE_LOG(LogTemp, Log, TEXT("框选结束"));
+	bSelecting = false;
+
+	SelectBoxWidget->SetVisibility(
+		ESlateVisibility::Collapsed
+	);
+}
+
+
 
 void ArtsPlayerController::OnInputStarted()
 {
@@ -127,19 +229,3 @@ void ArtsPlayerController::OnSetDestinationReleased()
 
 
 
-
-
-
-
-// Triggered every frame when the input is held down
-void ArtsPlayerController::OnTouchTriggered()
-{
-	bIsTouch = true;
-	OnSetDestinationTriggered();
-}
-
-void ArtsPlayerController::OnTouchReleased()
-{
-	bIsTouch = false;
-	OnSetDestinationReleased();
-}
