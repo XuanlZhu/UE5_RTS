@@ -39,15 +39,16 @@ AUnitCharacter::AUnitCharacter()
 }
 
 void AUnitCharacter::SetSelected(bool bIsSelected){
-	UE_LOG(LogTemp, Log, TEXT("被选中"));
+	UE_LOG(LogTemp, Log, TEXT("SetSelected移除或开启特效"));
 	if (bIsSelected)
 	{
-		SelectionEffectComponent->ActivateSystem(true);;bSelected = true;
+		SelectionEffectComponent->SetVisibility(true);bSelected = true;
 		UE_LOG(LogTemp, Log, TEXT("被选中，开启特效"));
 	}
 	else
 	{
-		SelectionEffectComponent->Deactivate();bSelected = false;
+		SelectionEffectComponent->SetVisibility(false);bSelected = false;
+		UE_LOG(LogTemp, Log, TEXT("移除选中特效"));
 	}
 		
 };
@@ -61,7 +62,7 @@ void AUnitCharacter::BeginPlay()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 	
-	SelectionEffectComponent->Deactivate();
+	SelectionEffectComponent->SetVisibility(false);
 	// 稍微向前移动
 	// AddMovementInput(GetActorForwardVector(), 100);
 	//创建特效，选中框

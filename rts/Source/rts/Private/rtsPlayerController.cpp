@@ -19,6 +19,7 @@
 #include "Components/Border.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Kismet/GameplayStatics.h"
+// #include "unit/UnitCharacter.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -170,6 +171,7 @@ void ArtsPlayerController::OnSelectBoxStart()
 void ArtsPlayerController::OnSelectBoxEnd()
 {
 	UE_LOG(LogTemp, Log, TEXT("框选结束"));
+	ClearSelectedUnits();//清理选中框
 	bSelecting = false;
 
 	SelectBoxWidget->SetVisibility(
@@ -196,8 +198,7 @@ void ArtsPlayerController::OnSelectBoxEnd()
 	{
 		AUnitCharacter* Unit = Cast<AUnitCharacter>(Actor);
 
-		if (!Unit)
-			continue;
+		if (!Unit)continue;
 
 		// 世界坐标 -> 屏幕坐标
 		FVector2D ScreenPosition;
@@ -219,8 +220,7 @@ void ArtsPlayerController::OnSelectBoxEnd()
 
 		if (bInBox)
 		{
-			Unit->SetSelected(true);
-			UE_LOG(LogTemp, Log, TEXT("开启选中特效"));
+			// UE_LOG(LogTemp, Log, TEXT("开启选中特效"));
 			UE_LOG(
 				LogTemp,
 				Log,
@@ -229,13 +229,47 @@ void ArtsPlayerController::OnSelectBoxEnd()
 				ScreenPosition.X,
 				ScreenPosition.Y
 			);
+			AddSelectedUnit(Unit);
+			
 		}
 	}
-	
-	
-	
 }
+// 添加一个选中单位
+void ArtsPlayerController::AddSelectedUnit(AUnitCharacter* Unit)
+{
+	if (!Unit)return;
+	
+	// 防止重复添加
+	SelectedUnits.AddUnique(Unit);
+	UE_LOG(LogTemp, Log, TEXT("加入选中表"));
+	Unit->SetSelected(true);
+}
+// 清空所有选中单位
+void ArtsPlayerController::RemoveSelectedUnit(AUnitCharacter* Unit)
+{
+	if (!Unit)
+	{
+		return;
+	}
 
+	if (SelectedUnits.Remove(Unit) > 0)
+	{
+		Unit->SetSelected(false);
+	}
+}
+// 移除一个选中单位
+void ArtsPlayerController::ClearSelectedUnits()
+{
+	UE_LOG(LogTemp, Log, TEXT("清理选项框"));
+	for (AUnitCharacter* Unit : SelectedUnits)
+	{
+		if (IsValid(Unit))
+		{
+			Unit->SetSelected(false);
+		}
+	}
+	SelectedUnits.Empty();
+}
 
 
 void ArtsPlayerController::OnInputStarted()

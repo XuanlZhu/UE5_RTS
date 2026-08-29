@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "rtsPlayerController.generated.h"
 
+class AUnitCharacter;
 class UWidget;
 class UAbilitySystemComponent;
 class UHUDWidget;
@@ -50,6 +51,16 @@ public:
 	//左键框选
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SelectBox;//框选
+	
+	// 当前选中的单位
+	UPROPERTY()
+	TArray<AUnitCharacter*> SelectedUnits;
+	// 添加一个选中单位
+	void AddSelectedUnit(AUnitCharacter* Unit);
+	// 清空所有选中单位
+	void ClearSelectedUnits();
+	// 移除一个选中单位
+	void RemoveSelectedUnit(AUnitCharacter* Unit);
 	
 	UPROPERTY()
 	UWidget* SelectBoxWidget;
