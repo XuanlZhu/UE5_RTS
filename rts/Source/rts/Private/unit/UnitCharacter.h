@@ -6,10 +6,13 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemComponent.h"
+#include "NiagaraComponent.h"
 
 #include "UnitCharacter.generated.h"
 
 class UMyAttributeSet;
+class UNiagaraComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class AUnitCharacter : public ACharacter, public IAbilitySystemInterface
@@ -19,6 +22,17 @@ class AUnitCharacter : public ACharacter, public IAbilitySystemInterface
 public:
 	AUnitCharacter();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override{return AbilitySystemComponent;};
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Selection")
+	TObjectPtr<UNiagaraSystem> SelectionEffect;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UNiagaraComponent> SelectionEffectComponent;
+	
+
+	bool bSelected = false;
+	void SetSelected(bool bIsSelected);
+	
+	
 	
 protected:
 	virtual void BeginPlay() override;

@@ -18,6 +18,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/Border.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -174,6 +175,65 @@ void ArtsPlayerController::OnSelectBoxEnd()
 	SelectBoxWidget->SetVisibility(
 		ESlateVisibility::Collapsed
 	);
+	
+	// 计算框选矩形
+	const float MinX = FMath::Min(SelectBoxStart.X, SelectBoxCurrent.X);
+	const float MaxX = FMath::Max(SelectBoxStart.X, SelectBoxCurrent.X);
+
+	const float MinY = FMath::Min(SelectBoxStart.Y, SelectBoxCurrent.Y);
+	const float MaxY = FMath::Max(SelectBoxStart.Y, SelectBoxCurrent.Y);
+
+	// 获取所有 AUnitCharacter
+	TArray<AActor*> Actors;
+
+	UGameplayStatics::GetAllActorsOfClass(
+		GetWorld(),
+		AUnitCharacter::StaticClass(),
+		Actors
+	);
+
+	for (AActor* Actor : Actors)
+	{
+		AUnitCharacter* Unit = Cast<AUnitCharacter>(Actor);
+
+		if (!Unit)
+			continue;
+
+		// 世界坐标 -> 屏幕坐标
+		FVector2D ScreenPosition;
+
+		if (!ProjectWorldLocationToScreen(
+			Unit->GetActorLocation(),
+			ScreenPosition
+		))
+		{
+			continue;
+		}
+
+		// 判断是否在框选区域
+		const bool bInBox =
+			ScreenPosition.X >= MinX &&
+			ScreenPosition.X <= MaxX &&
+			ScreenPosition.Y >= MinY &&
+			ScreenPosition.Y <= MaxY;
+
+		if (bInBox)
+		{
+			Unit->SetSelected(true);
+			UE_LOG(LogTemp, Log, TEXT("开启选中特效"));
+			UE_LOG(
+				LogTemp,
+				Log,
+				TEXT("框选到单位: %s | Screen: X=%.1f Y=%.1f"),
+				*Unit->GetName(),
+				ScreenPosition.X,
+				ScreenPosition.Y
+			);
+		}
+	}
+	
+	
+	
 }
 
 

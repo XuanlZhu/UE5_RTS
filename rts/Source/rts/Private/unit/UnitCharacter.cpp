@@ -4,7 +4,10 @@
 #include "UnitCharacter.h"
 
 #include "MyAttributeSet.h"
+#include "NiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "NiagaraSystem.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AUnitCharacter::AUnitCharacter()
@@ -23,8 +26,31 @@ AUnitCharacter::AUnitCharacter()
 	{
 		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
 	}
+	//创建选中特效
+	SelectionEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SelectionEffect"));
+	SelectionEffectComponent->SetupAttachment(RootComponent);
+	SelectionEffect = LoadObject<UNiagaraSystem>(
+		nullptr,
+		TEXT("/Game/UI/SelectBox.SelectBox")
+	);
+	SelectionEffectComponent->SetAsset(SelectionEffect);
+	// SelectionEffectComponent->SetAutoActivate(true);
 	
 }
+
+void AUnitCharacter::SetSelected(bool bIsSelected){
+	UE_LOG(LogTemp, Log, TEXT("被选中"));
+	if (bIsSelected)
+	{
+		SelectionEffectComponent->ActivateSystem(true);;bSelected = true;
+		UE_LOG(LogTemp, Log, TEXT("被选中，开启特效"));
+	}
+	else
+	{
+		SelectionEffectComponent->Deactivate();bSelected = false;
+	}
+		
+};
 
 void AUnitCharacter::BeginPlay()
 {
@@ -34,9 +60,15 @@ void AUnitCharacter::BeginPlay()
 	
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-
+	
+	SelectionEffectComponent->Deactivate();
 	// 稍微向前移动
 	// AddMovementInput(GetActorForwardVector(), 100);
+	//创建特效，选中框
+	// SelectionEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SelectionEffect"));
+	// SelectionEffectComponent->SetupAttachment(RootComponent);
+	// SelectionEffectComponent->SetAutoActivate(false);
+	
 }
 
 void AUnitCharacter::Tick(float DeltaTime)
