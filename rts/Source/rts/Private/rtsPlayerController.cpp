@@ -37,10 +37,13 @@ void ArtsPlayerController::BeginPlay()
 	
 	ASC = GetPawn<AUnitCharacter>()->GetAbilitySystemComponent();
 	
-	HudWidget = CreateWidget<UUserWidget>(
-		this,
-		HUDWidgetClass
-	);
+	if (HUDWidgetClass)
+	{
+		HudWidget = CreateWidget<UUserWidget>(
+			this,
+			HUDWidgetClass
+		);
+	}
 	if (HudWidget)HudWidget->AddToViewport();
 	//委托更新
 	// ASC->GetGameplayAttributeValueChangeDelegate( UMyAttributeSet::GetHealthAttribute() ).AddUObject(HudWidget,&UHUDWidget::OnHealthChanged);
