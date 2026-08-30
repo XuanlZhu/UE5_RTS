@@ -67,10 +67,10 @@ void ArtsPlayerController::SetupInputComponent()
 	if (auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// 设置鼠标输入事件
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ArtsPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::OnSetDestinationTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ArtsPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ArtsPlayerController::AllMoveStarted);
+		// EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ArtsPlayerController::AllMoveTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ArtsPlayerController::AllMoveReleased);
+		// EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ArtsPlayerController::OnSetDestinationReleased);
 		
 		// 设置按下Q
 		EnhancedInputComponent->BindActionInstanceLambda(PressQ, ETriggerEvent::Started, [this](const FInputActionInstance& Instance){
@@ -140,6 +140,8 @@ void ArtsPlayerController::OnSelectBoxTrigger()
 	CanvasSlot->SetSize(Size);
 
 }
+
+
 void ArtsPlayerController::OnSelectBoxStart()
 {
 	UE_LOG(LogTemp, Log, TEXT("框选开始"));
@@ -285,15 +287,8 @@ void ArtsPlayerController::OnSetDestinationTriggered()
 	
 	// 我们查找玩家在世界空间中按下输入的位置。
 	FHitResult Hit;
-	bool bHitSuccessful = false;
-	if (bIsTouch)
-	{
-		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-	else
-	{
-		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	}
+	
+	bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 
 	// If we hit a surface, cache the location
 	if (bHitSuccessful)
@@ -321,6 +316,48 @@ void ArtsPlayerController::OnSetDestinationReleased()
 	}
 
 	FollowTime = 0.f;
+}
+
+void ArtsPlayerController::AllMoveStarted()
+{
+	StartFollowTime = GetWorld()->GetTimeSeconds();
+	
+	FHitResult Hit;
+	bool bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+	if (bHitSuccessful)
+	{
+		CachedDestination = Hit.Location;
+	}
+}
+void ArtsPlayerController::AllMoveReleased()
+{
+	// 如果是短按
+	if (GetWorld()->GetTimeSeconds()-StartFollowTime <= ShortPressThreshold)
+	{
+		// 我们移动到那里，并生成一些粒子
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
+		
+		// 没有选中单位
+		if (SelectedUnits.IsEmpty())
+		{
+			AddSelectedUnit(Cast<AUnitCharacter>(GetPawn()));
+		}
+		
+		
+		for (AUnitCharacter* Unit : SelectedUnits)
+		{
+			if (IsValid(Unit))
+			{
+				UAIBlueprintHelperLibrary::SimpleMoveToLocation(Cast<AController>(Unit->GetController()), CachedDestination);
+			}
+		}
+		
+	}
+
+	FollowTime = 0.f;
+}
+void ArtsPlayerController::AllMoveTriggered()
+{
 }
 
 

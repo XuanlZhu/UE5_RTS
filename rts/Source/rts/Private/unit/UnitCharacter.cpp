@@ -3,6 +3,7 @@
 
 #include "UnitCharacter.h"
 
+#include "AIController.h"
 #include "MyAttributeSet.h"
 #include "NiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,16 +17,27 @@ AUnitCharacter::AUnitCharacter()
 	//添加ASC和属性系统
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AttributeSet = CreateDefaultSubobject<UMyAttributeSet>(TEXT("AttributeSet"));
+	//mesh相对位置
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90, 0));
 	
 	// 设置 Quinn 网格体
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshAsset(
-		TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn")
+		TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny")
 	);
-
 	if (MeshAsset.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(MeshAsset.Object);
 	}
+	//绑定动画
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBPClass(
+		TEXT("/Game/Characters/Mannequins/Animations/ABP_Manny")
+	);
+	if (AnimBPClass.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(AnimBPClass.Class);
+	}
+	
 	//创建选中特效
 	SelectionEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SelectionEffect"));
 	SelectionEffectComponent->SetupAttachment(RootComponent);
@@ -35,7 +47,15 @@ AUnitCharacter::AUnitCharacter()
 	);
 	SelectionEffectComponent->SetAsset(SelectionEffect);
 	// SelectionEffectComponent->SetAutoActivate(true);
+	//添加AI控制器
+	AIControllerClass = AAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
+	// 配置角色移动
+	GetCharacterMovement()->bOrientRotationToMovement = true; // 将角色转向移动方向
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+	GetCharacterMovement()->bConstrainToPlane = true;//约束到地面
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;//当角色开始移动时，把角色的位置自动调整到约束的移动平面上。
 }
 
 void AUnitCharacter::SetSelected(bool bIsSelected){
@@ -69,7 +89,17 @@ void AUnitCharacter::BeginPlay()
 	// SelectionEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SelectionEffect"));
 	// SelectionEffectComponent->SetupAttachment(RootComponent);
 	// SelectionEffectComponent->SetAutoActivate(false);
-	
+	//绑定动画蓝图
+	// 绑定动画蓝图
+	// UClass* AnimBPClass = LoadClass<UAnimInstance>(
+	// 	nullptr,
+	// 	TEXT("/Game/Characters/Mannequins/Animations/ABP_Manny.ABP_Manny_C")
+	// );
+	// if (AnimBPClass)
+	// {
+	// 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	// 	GetMesh()->SetAnimInstanceClass(AnimBPClass);
+	// }
 }
 
 void AUnitCharacter::Tick(float DeltaTime)

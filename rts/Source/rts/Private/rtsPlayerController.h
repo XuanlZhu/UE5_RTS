@@ -83,6 +83,11 @@ protected:
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
+	
+	void AllMoveStarted();
+	void AllMoveTriggered();
+	void AllMoveReleased();
+	
 	void OnSelectBoxStart();
 	void OnSelectBoxEnd();
 	void OnSelectBoxTrigger();
@@ -92,6 +97,7 @@ private:
 	FVector CachedDestination;//缓存目标
 
 	bool bIsTouch; // 是否是触摸设备
+	float StartFollowTime;//按压开始时间
 	float FollowTime; //按压时间
 	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")

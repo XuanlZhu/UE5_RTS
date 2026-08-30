@@ -29,8 +29,7 @@ void ArtsGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	FActorSpawnParameters SpawnParams;
-
+	FActorSpawnParameters SpawnParams;//刷新参数
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	
 	GetWorld()->SpawnActor<AUnitCharacter>(
